@@ -2,11 +2,23 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-#Importing the function from the separate file
-import grouped_barchart_function
-from grouped_barchart_function import plot_grouped_bar_charts
+import requests
+from importlib.machinery import SourceFileLoader
+import io
 
 textstr = 'Created at \nwww.tssfl.com'
+
+#Download the grouped_barchart_function.py file from GitHub
+url = 'https://raw.githubusercontent.com/username/repo/main/grouped_barchart_function.py'
+download = requests.get(url).text
+
+#Write the downloaded content to a temporary file
+with open('grouped_barchart_function.py', 'w') as file:
+    file.write(download)
+
+#Import the function from the downloaded file
+temporary_module = SourceFileLoader('grouped_barchart_module', 'grouped_barchart_function.py').load_module()
+plot_grouped_bar_charts = temporary_module.plot_grouped_bar_charts
 
 class GroupedBarCharts:
     def __init__(self):
@@ -51,30 +63,25 @@ class GroupedBarCharts:
         plt.tight_layout()
         plt.show()
         
-    def create_barchart(self):
-        #Call the `plot_grouped_bar_charts` function from the grouped_barchart_function module
-        #plot_grouped_bar_charts(group_names, responses, data) 
-        grouped_barchart_function.plot_grouped_bar_charts(group_names, responses, data)
+    def create_barchart(self, group_names, responses, data):
+        #Use the imported function plot_grouped_bar_charts
+        plot_grouped_bar_charts(group_names, responses, data)
 
 #Create grouped bar charts object and plot
 gb = GroupedBarCharts()
-       
+
 #Create a random dataframe
-group_names = np.random.choice(['Group A', 'Group B', 'Group C', 'Group D', 'Group E', 'Group F', 'Group G'], size=100)
+group_names = np.random.choice(['Group A', 'Group B', 'Group C', 'Group D'], size=100)
 responses = np.random.choice(['agree', 'disagree', 'strongly agree', 'strongly disagree'], size=100)
 df = pd.DataFrame({'Column1': group_names, 'Column2': responses})
-
-# Convert dataframe to preserve the original order of responses.
 df = pd.crosstab(df['Column1'], df['Column2'])
-
-# Convert pandas dataframe to numpy array
 data = df.to_numpy()
 
-# Calculate the total percentage for each group
+#Calculate the total percentage for each group
 group_totals = np.sum(data, axis=1)
 total = np.sum(group_totals)
 
-# Convert the list to a pandas Series
+#Convert the list to a pandas Series
 group_series = pd.Series(group_names)
 group_names = group_series.unique()
 group_names = group_names[::-1]
@@ -82,8 +89,8 @@ group_names = group_names[::-1]
 response_series = pd.Series(responses)
 responses = response_series.unique()
 
-#Call function under class
+#Call the function under the class
 gb.plot_grouped_barcharts(group_names, responses, data)
 
-#Call imported function
-gb.create_barchart()
+#Call the imported function
+gb.create_barchart(group_names, responses, data)
