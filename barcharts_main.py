@@ -1,23 +1,20 @@
+import requests
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-#Importing the function from the separate file
-import grouped_barchart_function
-from grouped_barchart_function import plot_grouped_bar_charts
-
-textstr = 'Created at \nwww.tssfl.com'
-
 class GroupedBarCharts:
-    def __init__(self):
-        pass
+    def __init__(self, function_url):
+        self.function_url = function_url
+        self.function_script = requests.get(self.function_url).text
+
+        exec(self.function_script, globals())
 
     def plot_grouped_barcharts(self, group_names, responses, data):
         fig, ax = plt.subplots(figsize=(14, 7))
         bar_width = 0.1
         opacity = 0.8
         total = np.sum(np.sum(data, axis=1))
-
         colors = ['green', 'crimson', '#00FF00', "#FFD700", 'blue', '#4286f4', "#FF4500"]
 
         for i, group_data in enumerate(data):
@@ -45,34 +42,24 @@ class GroupedBarCharts:
 
         legend = plt.legend(title='Legend', bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.subplots_adjust(right=0.9)
-
-        plt.gcf().text(0.02, 0.94, textstr, fontsize=14, color='green')
-
         plt.tight_layout()
         plt.show()
-        
-    def create_barchart(self, group_names, responses, data):
-        #Call the `plot_grouped_bar_charts` function from the grouped_barchart_function module
-        #plot_grouped_bar_charts(group_names, responses, data) 
-        grouped_barchart_function.plot_grouped_bar_charts(group_names, responses, data)
 
-#Create grouped bar charts object and plot
-gb = GroupedBarCharts()
-       
-#Create a random dataframe
-group_names = np.random.choice(['Group A', 'Group B', 'Group C', 'Group D', 'Group E', 'Group F', 'Group G'], size=100)
+    def create_barchart(self, group_names, responses, data):
+        plot_grouped_bar_charts(group_names, responses, data)
+
+# Specify the URL of the function script on GitHub
+function_url = 'https://raw.githubusercontent.com/TSSFL/GitHub_Actions/master/grouped_barchart_function.py'
+
+# Create grouped bar charts object and plot
+gb = GroupedBarCharts(function_url)
+
+# Generate random data for testing
+group_names = np.random.choice(['Group A', 'Group B', 'Group C', 'Group D'], size=100)
 responses = np.random.choice(['agree', 'disagree', 'strongly agree', 'strongly disagree'], size=100)
 df = pd.DataFrame({'Column1': group_names, 'Column2': responses})
-
-# Convert dataframe to preserve the original order of responses.
 df = pd.crosstab(df['Column1'], df['Column2'])
-
-# Convert pandas dataframe to numpy array
 data = df.to_numpy()
-
-# Calculate the total percentage for each group
-group_totals = np.sum(data, axis=1)
-total = np.sum(group_totals)
 
 # Convert the list to a pandas Series
 group_series = pd.Series(group_names)
@@ -82,8 +69,8 @@ group_names = group_names[::-1]
 response_series = pd.Series(responses)
 responses = response_series.unique()
 
-#Call function under class
+# Call the plot_grouped_barcharts method
 gb.plot_grouped_barcharts(group_names, responses, data)
 
-#Call imported function
+# Call the create_barchart method to use the external function
 gb.create_barchart(group_names, responses, data)
