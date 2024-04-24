@@ -97,7 +97,7 @@ class GroupedBarCharts:
         
     def create_horizontal_barcharts(self):
         #Call the `plot_grouped_bar_charts` function from the grouped_barchart_function module
-        self.plot_grouped_barcharts(group_names, responses, data)
+        self.plot_grouped_bar_charts(group_names, responses, data)
 
 #Create grouped bar charts object and plot
 gb = GroupedBarCharts()
